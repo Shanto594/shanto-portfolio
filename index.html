@@ -1217,11 +1217,12 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
         <div class="fx-line"><p>next big</p><p>launch?</p></div>
         <div class="fx-form-wrap fx-click" id="fx-form-wrap">
           <form class="fx-form" id="contact-form" novalidate aria-describedby="form-note">
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
             <div class="fx-field"><label for="f-name">Name</label><input id="f-name" name="name" type="text" autocomplete="name" maxlength="256" required></div>
             <div class="fx-field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" maxlength="256" required></div>
             <button class="fx-btn" type="submit"><span class="fx-btn__wrap"><span class="fx-btn__row">Submit <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 6.5v5.6a2.6 2.6 0 0 1-2.6 2.6H6.5M10 10.8l-4 3.9 4 3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="fx-btn__row is-02" aria-hidden="true">Submit <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 6.5v5.6a2.6 2.6 0 0 1-2.6 2.6H6.5M10 10.8l-4 3.9 4 3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></button>
           </form>
-          <div class="fx-done" id="fx-done" tabindex="-1"><p class="fx-done__title" id="fx-done-title">Thanks, your message is on its way.</p><p class="fx-done__sub">Your email app should open with it ready to send. I’ll reply within a day or two.</p></div>
+          <div class="fx-done" id="fx-done" tabindex="-1"><p class="fx-done__title" id="fx-done-title">Thanks, your message is on its way.</p><p class="fx-done__sub">I’ll get back to you at the email you shared within a day or two.</p></div>
           <p class="fx-status" id="form-note" aria-live="polite"></p>
         </div>
         <div class="fx-foot fx-click">
@@ -1888,25 +1889,47 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       window.addEventListener('resize', function () { inputs.forEach(fit); });
     })();
 
-    // Form: validate, hand the message to the visitor's email app, show the sent state
+    // Form: validate, then send the lead to Shanto's inbox through FormSubmit (no backend needed).
+    // Every submission arrives in Gmail as a table with the visitor's name, email, page and time.
+    var LEADS = 'https://formsubmit.co/ajax/mehedihasan594@gmail.com';
     var form = document.getElementById('contact-form');
     var note = document.getElementById('form-note');
     var fwrap = document.getElementById('fx-form-wrap');
     if (!form) return;
+    var btn = form.querySelector('.fx-btn'), sending = false;
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var name = form.elements.name, email = form.elements.email;
+      if (sending) return;
+      var name = form.elements.name, email = form.elements.email, honey = form.elements._honey;
       if (!name.value.trim()) { note.textContent = 'Add your name so I know who to reply to.'; name.focus(); return; }
       if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { note.textContent = 'Add a valid email address so I can reply.'; email.focus(); return; }
-      var first = name.value.trim().split(' ')[0];
-      var href = 'mailto:mehedihasan594@gmail.com?subject=' + encodeURIComponent('Project inquiry from ' + name.value.trim()) +
-        '&body=' + encodeURIComponent('Hi Shanto,\n\nI’d like to talk about a project.\n\n' + name.value.trim() + '\n' + email.value.trim());
-      note.textContent = '';
-      document.getElementById('fx-done-title').textContent = 'Thanks, ' + first + ', your message is on its way.';
-      fwrap.classList.add('is-sent');
-      document.getElementById('fx-done').focus({ preventScroll: true });
-      emojiRain();
-      window.location.href = href;
+      if (honey && honey.value) return;                          // bots fill the hidden field; people never see it
+      var who = name.value.trim(), first = who.split(' ')[0];
+      sending = true; btn.setAttribute('aria-busy', 'true'); btn.style.opacity = '.6';
+      note.textContent = 'Sending…';
+      fetch(LEADS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          name: who, email: email.value.trim(),
+          _replyto: email.value.trim(),
+          _subject: 'New portfolio lead: ' + who,
+          _template: 'table', _captcha: 'false',
+          page: location.href, sent_at: new Date().toString()
+        })
+      }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || d.success === 'false' || d.success === false) throw new Error(d.message || 'Send failed'); }); })
+        .then(function () {
+          note.textContent = '';
+          document.getElementById('fx-done-title').textContent = 'Thanks, ' + first + '. Your message is in.';
+          fwrap.classList.add('is-sent');
+          document.getElementById('fx-done').focus({ preventScroll: true });
+          emojiRain();
+          form.reset();
+        })
+        .catch(function () {
+          note.textContent = 'That didn’t go through. Please try again, or email mehedihasan594@gmail.com.';
+        })
+        .then(function () { sending = false; btn.removeAttribute('aria-busy'); btn.style.opacity = ''; });
     });
   })();
 
