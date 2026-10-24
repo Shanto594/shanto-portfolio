@@ -174,6 +174,8 @@ section[id], header[id] { scroll-margin-top: 0; }
   right: 0;
   width: min(400px, calc(100vw - 32px));
   max-height: calc(100vh - 130px - env(safe-area-inset-top, 0px));
+  max-height: calc(100dvh - 120px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));   /* dvh = the visible area on phones, so the browser's address and tool bars never cover the panel */
+  -webkit-overflow-scrolling: touch;
   overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   scrollbar-width: none; -ms-overflow-style: none;
   padding: 10px;
@@ -1033,7 +1035,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
   <button class="music-btn" id="music-btn" type="button" aria-pressed="false" aria-label="Turn background music on"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="lbl" aria-hidden="true">Sound off</span></button>
   <button class="nav__menu" id="nav-menu" type="button" aria-label="Open section menu" aria-expanded="false" aria-controls="nav-panel"><i></i><i></i><i></i><i></i></button>
  </div>
-  <div class="nav__panel" id="nav-panel" role="dialog" aria-label="Site menu">
+  <div class="nav__panel" id="nav-panel" role="dialog" aria-label="Site menu" data-lenis-prevent>
     <div class="mp-grab mp-anim" aria-hidden="true" style="--k:0"></div>
     <div class="mp-grid">
       <a class="mp-tile mp-anim" href="#projects" data-spy="projects" style="--k:1"><span class="mp-num">01</span><img class="mp-peek" src="assets/thumb-cashpilot.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Projects</b><small>Selected work</small></a>
