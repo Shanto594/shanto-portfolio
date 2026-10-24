@@ -781,7 +781,7 @@ a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
 .fx-foot a { color: inherit; text-decoration: none; }
 .fx-foot__top { display: grid; grid-template-columns: repeat(8, 1fr); gap: calc(.25 * var(--r)); }
 .fx-follow { grid-column: span 3; }
-.fx-write { grid-column: span 5; }
+.fx-write { grid-column: span 5; justify-self: end; text-align: right; }   /* email sits flush with the right edge, mirroring Follow on the left */
 .fx-mb4 { margin-bottom: calc(.25 * var(--r)); }
 .fx-follow .fx-mb4 p { font-weight: 500; }
 .fx-media { display: flex; gap: var(--r); padding-block: calc(.75 * var(--r)); }
@@ -814,6 +814,7 @@ a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
   .fx-btn { grid-column: auto; width: 100%; height: 3rem; padding-block: 0; align-items: center; }
   .fx-foot { gap: 2rem; padding-bottom: 3rem; }
   .fx-foot__top { display: flex; flex-flow: column; justify-content: flex-start; align-items: flex-start; gap: 1.5rem; }
+  .fx-write { justify-self: auto; text-align: left; }
   .fx-media a { max-width: 3rem; width: 3rem; }
   .fx-email { font-size: min(4rem, 6vw); }
   .fx-foot__bot { row-gap: 1.5rem; }
