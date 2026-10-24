@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Google Analytics 4 with Consent Mode: no analytics cookies until the visitor accepts -->
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+(function(){var c=null;try{c=localStorage.getItem('sh-consent');}catch(e){}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:c==='granted'?'granted':'denied',wait_for_update:500});})();
+gtag('js',new Date());gtag('config','G-WZ0NDPV9WF',{anonymize_ip:true});
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WZ0NDPV9WF"></script>
 <title>Shanto Hasan - Design Engineer</title>
 <meta name="description" content="Shanto Hasan is a design engineer in Dhaka with 5+ years of experience designing and building product interfaces, design systems and front-end with motion and polish.">
 <meta name="theme-color" content="#0d0d0b">
@@ -2257,5 +2265,39 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
 })();
 </script>
 
+<style>
+.ck{position:fixed;left:16px;bottom:16px;z-index:9000;width:min(360px,calc(100vw - 32px));padding:18px;border-radius:12px;background:#0d0d0b;color:#efeeeb;border:1px solid rgba(239,238,235,.14);box-shadow:0 20px 50px -20px rgba(0,0,0,.5);font-size:14px;line-height:1.45;opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .45s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.ck.is-in{opacity:1;transform:none;pointer-events:auto}
+.ck p{margin:0 0 14px;color:rgba(239,238,235,.78)}
+.ck b{display:block;margin-bottom:4px;color:#efeeeb;font-weight:500;font-size:15px}
+.ck-row{display:flex;gap:8px}
+.ck button{flex:1;height:40px;border-radius:12px;border:1px solid rgba(239,238,235,.2);background:transparent;color:#efeeeb;font:inherit;font-weight:500;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.ck button:hover{border-color:#efeeeb}
+.ck .ck-yes{background:#2c4bb5;border-color:#2c4bb5;color:#fff}
+.ck .ck-yes:hover{background:#3a5bd0;border-color:#3a5bd0}
+.ck button:focus-visible{outline:2px solid #c1ccf1;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.ck{transition:opacity .2s}}
+</style>
+<div class="ck" id="ck" role="region" aria-label="Cookie consent" hidden>
+  <b>Cookies, briefly</b>
+  <p>I use Google Analytics to see how many people visit and which pages they like. Nothing is tracked unless you say yes.</p>
+  <div class="ck-row"><button type="button" class="ck-no" id="ck-no">Decline</button><button type="button" class="ck-yes" id="ck-yes">Accept</button></div>
+</div>
+<script>
+(function(){
+  var box=document.getElementById('ck'),saved=null;
+  try{saved=localStorage.getItem('sh-consent');}catch(e){}
+  if(saved)return;
+  function choose(v){try{localStorage.setItem('sh-consent',v);}catch(e){}
+    gtag('consent','update',{analytics_storage:v});
+    box.classList.remove('is-in');setTimeout(function(){box.hidden=true;},500);}
+  document.getElementById('ck-yes').addEventListener('click',function(){choose('granted');});
+  document.getElementById('ck-no').addEventListener('click',function(){choose('denied');});
+  function show(){box.hidden=false;requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add('is-in');});});}
+  // wait until the intro loader has finished so the banner never sits on top of it
+  function ready(){var c=document.documentElement.classList;return !c.contains('is-loading')&&!c.contains('is-leaving');}
+  var t0=Date.now();(function wait(){if(ready()&&Date.now()-t0>1800)return setTimeout(show,1200);if(Date.now()-t0>12000)return show();setTimeout(wait,250);})();
+})();
+</script>
 </body>
 </html>
