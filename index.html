@@ -193,6 +193,13 @@ section[id], header[id] { scroll-margin-top: 0; }
 .mp-grab { width: 72px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.14); margin: 4px auto 14px; }
 .mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .mp-wide { grid-column: 1 / -1; }
+/* Last row scrolls sideways: Skillset, the clock, then Process peeking in from the right edge */
+.mp-row { grid-column: 1 / -1; display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 10px) / 2 - 12px); gap: 10px; margin: 0 -10px; padding: 0 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: 10px; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; cursor: grab; touch-action: pan-x pan-y; }
+.mp-row::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.mp-row > * { scroll-snap-align: start; }
+.mp-row > .mp-tile { min-height: 0; }   /* every tile in the row takes the round clock's height */
+.mp-row.is-drag { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.mp-row.is-drag a { pointer-events: none; }
 .mp-tile {
   position: relative; overflow: hidden; isolation: isolate;
   display: flex; flex-direction: column; justify-content: flex-end;
@@ -1058,6 +1065,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
           <svg viewBox="0 0 22 22" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="m3.5 6.5 7.5 5.5 7.5-5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
+      <div class="mp-row" id="mp-row" role="group" aria-label="More sections, scroll sideways">
       <a class="mp-tile mp-anim" href="#skillset" data-spy="skillset" style="--k:5"><span class="mp-num">03</span><img class="mp-peek" src="assets/thumb-superai.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Skillset</b><small>What I do</small></a>
       <div class="mp-tile mp-clock mp-anim" style="--k:6" role="img" aria-label="Local time in Dhaka" id="mp-clock">
         <span class="mp-clock__ring" aria-hidden="true"></span>
@@ -1066,8 +1074,10 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
         <span class="mp-clock__hand s" id="mp-s" aria-hidden="true"><i></i></span>
         <span><b>Dhaka</b><small id="mp-time">--:--</small></span>
       </div>
+      <a class="mp-tile mp-anim" href="#process" data-spy="process" style="--k:7"><span class="mp-num">04</span><img class="mp-peek" src="assets/thumb-parenting.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Process</b><small>How I work</small></a>
+      </div>
     </div>
-    <div class="mp-foot mp-anim" style="--k:7">
+    <div class="mp-foot mp-anim" style="--k:8">
       <a class="mp-foot__logo" href="#top" aria-label="Back to top"><svg viewBox="0 0 22 24" fill="none" aria-hidden="true"><path d="M6.20461 8.3972C8.62132 9.19976 18.9821 12.4167 18.9821 12.4167C20.5192 12.8995 21.7631 14.7825 21.7631 16.6212V19.2644C21.7631 21.1031 20.5173 22.2018 18.9821 21.719L18.3075 21.5433C16.7386 21.2585 15.3894 21.9188 14.6077 23.2137L14.4762 23.4504C14.1569 23.9179 13.6118 24.1182 12.9974 23.924L1.23453 20.2245C0.638876 20.0358 0.154083 19.3052 0.154083 18.5893V15.6112L17.383 21.031C17.8096 21.1641 18.1554 20.8589 18.1554 20.3484V19.738C18.1554 17.9733 17.4263 16.2333 15.5585 15.602C13.6907 14.9706 2.78099 11.5825 2.78099 11.5825C1.24393 11.0997 0 9.21667 0 7.37802V4.73474C0 2.8961 1.24581 1.79735 2.78099 2.28014L3.45557 2.45586C5.02458 2.74072 6.30656 2.03859 7.15544 0.785546L7.31894 0.553325C7.64025 0.0871911 8.15129 -0.118977 8.76574 0.0752453L20.5286 3.77473C21.1242 3.9634 21.6091 4.69405 21.6091 5.4099V8.388L4.38006 2.96824C3.95352 2.83506 3.60777 3.14027 3.60777 3.6508V4.26121C3.60777 6.02586 3.78793 7.5947 6.20461 8.3972Z" fill="#fff"/></svg></a>
       <span class="mp-foot__read"><span id="read-pct">0%</span> read</span>
       <button class="mp-foot__close" id="mp-close" type="button" aria-label="Close menu"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
@@ -1521,6 +1531,28 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
   setOpen(false);
   menuBtn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!nav.classList.contains('is-open')); });
   panel.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setOpen(false); }); });
+  // Sideways row in the menu: mouse users can drag it like a touch swipe; a drag never counts as a click
+  (function () {
+    var row = document.getElementById('mp-row');
+    if (!row) return;
+    var down = false, moved = false, x0 = 0, s0 = 0;
+    row.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; x0 = e.clientX; s0 = row.scrollLeft; });
+    window.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) > 5) { moved = true; row.classList.add('is-drag'); }
+      if (moved) row.scrollLeft = s0 - dx;
+    });
+    window.addEventListener('pointerup', function () {
+      if (!down) return; down = false;
+      if (!moved) return;
+      var w = row.firstElementChild.getBoundingClientRect().width + 10;
+      row.classList.remove('is-drag');
+      row.scrollTo({ left: Math.round(row.scrollLeft / w) * w, behavior: 'smooth' });   // settle on a tile, like the touch snap
+    });
+    row.addEventListener('click', function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    document.addEventListener('menu:toggle', function (e) { if (e.detail) row.scrollLeft = 0; });
+  })();
   document.getElementById('mp-close').addEventListener('click', function () { setOpen(false); menuBtn.focus(); });
   document.addEventListener('click', function (e) { if (!nav.contains(e.target)) setOpen(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && nav.classList.contains('is-open')) { setOpen(false); menuBtn.focus(); } });
