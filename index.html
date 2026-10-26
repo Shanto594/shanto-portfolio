@@ -810,7 +810,15 @@ a.mp-tile:hover .mp-in small, a.mp-tile:focus-visible .mp-in small, a.mp-tile:ho
 .fx-btn__row.is-02 { top: 100%; }
 .fx-btn:hover .fx-btn__row, .fx-btn:focus-visible .fx-btn__row { transform: translateY(-100%); }
 .fx-btn__row svg { width: calc(1.5 * var(--r)); max-width: 1.5rem; height: auto; }
+/* Sending state: the button turns blue, reads "Sending" and shows a spinner, so it is obvious the form is working */
+.fx-btn.is-busy { background: var(--primary); color: #fff; cursor: progress; }
+.fx-btn.is-busy .fx-btn__row { transform: none !important; }
+.fx-btn.is-busy .fx-btn__row.is-02 { visibility: hidden; }
+.fx-spin { width: 1.1em; height: 1.1em; flex: none; border-radius: 50%; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; animation: fx-spin .7s linear infinite; }
+@keyframes fx-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .fx-spin { animation-duration: 1.6s; } }
 .fx-status { position: absolute; left: 0; top: calc(100% + .5rem); font-size: var(--r); line-height: 1.5; color: var(--night-muted); min-height: 1.5em; }
+.fx-status.is-error { color: #ff9d94; }
 .fx-done { display: none; height: 100%; min-height: inherit; background: #1c1c1a; border-radius: 12px; flex-flow: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
 .fx-form-wrap.is-sent .fx-form { display: none; }
 .fx-form-wrap.is-sent .fx-done { display: flex; position: absolute; inset: 0; }
@@ -1995,8 +2003,11 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { note.textContent = 'Add a valid email address so I can reply.'; email.focus(); return; }
       if (honey && honey.value) return;                          // bots fill the hidden field; people never see it
       var who = name.value.trim(), first = who.split(' ')[0];
-      sending = true; btn.setAttribute('aria-busy', 'true'); btn.style.opacity = '.6';
-      note.textContent = 'Sending…';
+      sending = true; btn.setAttribute('aria-busy', 'true'); btn.classList.add('is-busy');
+      var row = btn.querySelector('.fx-btn__row'), rowHTML = row.innerHTML;
+      row.innerHTML = 'Sending… <span class="fx-spin" aria-hidden="true"></span>';
+      note.classList.remove('is-error'); note.textContent = 'Sending your message…';
+      function idle() { sending = false; btn.removeAttribute('aria-busy'); btn.classList.remove('is-busy'); row.innerHTML = rowHTML; }
       var payload = JSON.stringify({
         name: who, email: email.value.trim(),
         _replyto: email.value.trim(),
@@ -2013,7 +2024,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       var shown = false;
       function done() {
         if (shown) return; shown = true;
-        sending = false; btn.removeAttribute('aria-busy'); btn.style.opacity = '';
+        idle();
         note.textContent = '';
         document.getElementById('fx-done-title').textContent = 'Thanks, ' + first + '. Your message is in.';
         fwrap.classList.add('is-sent');
@@ -2021,11 +2032,12 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
         emojiRain();
         form.reset();
       }
-      var wait = setTimeout(done, 4000);
+      var wait = setTimeout(done, 2500);
       send().then(function () { clearTimeout(wait); done(); }).catch(function () {
         if (shown) { setTimeout(function () { send().catch(function () {}); }, 3000); return; }   // already thanked: quietly try once more
         clearTimeout(wait);
-        sending = false; btn.removeAttribute('aria-busy'); btn.style.opacity = '';
+        idle();
+        note.classList.add('is-error');
         note.textContent = 'That didn’t go through. Please try again, or email mehedihasan594@gmail.com.';
       });
     });
