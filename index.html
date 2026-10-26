@@ -219,6 +219,23 @@ a.mp-tile:active { transform: scale(.98); }
 a.mp-tile:hover .mp-peek, a.mp-tile:focus-visible .mp-peek { opacity: 1; transform: none; }
 a.mp-tile:hover .mp-fade, a.mp-tile:focus-visible .mp-fade { opacity: 1; }
 a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
+/* Menu section tiles (mubien-style hover): the tile becomes a soft frame and its card springs in to 90%,
+   with a little overshoot, revealing the frame around it, while its text fades back. */
+a.mp-tile { padding: 0; background: rgba(255,255,255,.025); }
+a.mp-tile:hover, a.mp-tile:focus-visible { background: rgba(255,255,255,.025); }
+a.mp-tile:active { transform: none; }
+.mp-in { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px; overflow: hidden; isolation: isolate; border-radius: 12px; background: rgba(255,255,255,.06);
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1), background-color .3s;
+  transition: transform .4s linear(0 0%, .956 10.8%, 1.152 16%, .977 32.8%, 1 100%), background-color .3s; }
+a.mp-tile:hover .mp-in, a.mp-tile:focus-visible .mp-in { transform: scale(.9); }
+a.mp-tile:active .mp-in { transform: scale(.86); }
+a.mp-tile.is-current { box-shadow: none; }
+a.mp-tile.is-current .mp-in { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
+/* text dims as the card springs in, like Mubien (no image) */
+.mp-in b, .mp-in small, .mp-in .mp-num { transition: color .55s cubic-bezier(.66, 0, .107, .995); }
+a.mp-tile:hover .mp-in b, a.mp-tile:focus-visible .mp-in b { color: rgba(239,238,235,.55); }
+a.mp-tile:hover .mp-in small, a.mp-tile:focus-visible .mp-in small, a.mp-tile:hover .mp-in .mp-num, a.mp-tile:focus-visible .mp-in .mp-num { color: rgba(239,238,235,.28); }
+@media (prefers-reduced-motion: reduce) { .mp-in { transition: background-color .3s; } a.mp-tile:hover .mp-in, a.mp-tile:focus-visible .mp-in { transform: none; } }
 /* Reel */
 .mp-reel { min-height: 210px; padding: 0; background: #000; cursor: pointer; }
 /* Slides crossfade; the slow zoom is an animation (not a transition) so pausing freezes it exactly where it is */
@@ -713,15 +730,17 @@ a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
 
 /* ---------------- PROCESS (nbnzia mwg032 arc + mwg043 fanned cards) ---------------- */
 .arc { position: relative; background: var(--paper); color: var(--ink); }
-.arc__pin { position: relative; height: 400vh; }
+.arc__pin { position: relative; height: 280vh; }   /* shorter pin: the headline slides through faster, so the cards follow sooner */
 .arc__stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .arc__frame { position: absolute; left: 0; right: 0; top: calc(18 * min(1.11111vw, 16px) + 17px); height: 100vh; display: flex; justify-content: center; align-items: center; }
 .arc__svg { width: 100%; height: auto; overflow: visible; transform: translate(0, -100%) scale(1.1); pointer-events: none; }
 .arc__svg textPath { fill: currentColor; font-family: var(--f-display); font-weight: 500; font-size: 9vw; line-height: normal; letter-spacing: -.02em; }
-.steps { --rem: min(1.11111vw, 16px); position: relative; height: 120vh; overflow: hidden; background: var(--paper); color: #1f1f1f; }
+.steps { --rem: min(1.11111vw, 16px, calc((100vh - 170px) / 31.63)); position: relative; z-index: 1; margin-top: -25vh; height: 190vh; background: var(--paper); color: #1f1f1f; }
+/* The cards get their own pinned screen: once they have swung in they hold, centred below the menu bar, before the footer arrives */
+.steps__stick { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .steps__container { width: 300vw; height: 300vw; position: absolute; top: 0; left: -100vw; }
 .steps__wrap { pointer-events: none; display: flex; justify-content: center; position: absolute; inset: 0; transform: rotate(40deg); will-change: transform; }
-.step { width: calc(22.5 * var(--rem)); height: calc(31.63 * var(--rem)); margin-top: 50vh; transform: translate(0, -50%); border-radius: 1vw; }
+.step { width: calc(22.5 * var(--rem)); height: calc(31.63 * var(--rem)); margin-top: calc(50vh + 34px); transform: translate(0, -50%); border-radius: 1vw; }
 .steps.on .step { pointer-events: auto; }
 .step__content { height: 100%; display: flex; flex-flow: column; justify-content: space-between; align-items: flex-start; padding: calc(2 * var(--rem)); border-radius: calc(1.25 * var(--rem)); background: #fff; }
 .step__label { margin-bottom: var(--rem); font-size: calc(.625 * var(--rem)); line-height: 1.6; letter-spacing: -.01em; text-transform: uppercase; color: var(--primary); }
@@ -729,7 +748,8 @@ a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
 .step__copy { font-size: var(--rem); line-height: 1.5; letter-spacing: -.01em; font-weight: 500; }
 .step__list { font-size: calc(.625 * var(--rem)); line-height: 1.6; letter-spacing: -.01em; text-transform: uppercase; }
 @media (max-width: 991px) {
-  .steps { --rem: 16px; height: auto; overflow: visible; padding: 48px 16px 96px; }
+  .steps { --rem: 16px; height: auto; overflow: visible; margin-top: -20vh; padding: 48px 16px 96px; }
+  .steps__stick { position: static; height: auto; overflow: visible; }
   .steps__container { position: static; width: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .steps__wrap { position: relative; inset: auto; width: 100%; transform: none; pointer-events: auto; opacity: 0; translate: 0 60px; scale: .96; transition: opacity .9s cubic-bezier(.215,.61,.355,1), translate .9s cubic-bezier(.215,.61,.355,1), scale .9s cubic-bezier(.215,.61,.355,1); }
   .steps__wrap.is-in { opacity: 1; translate: 0 0; scale: 1; }
@@ -737,9 +757,11 @@ a.mp-tile.is-current { box-shadow: inset 0 0 0 1px rgba(193,204,241,.5); }
   .step__content { height: auto; flex: 1; }
 }
 @media (max-width: 768px) { .arc__svg textPath { font-size: 40vw; } }
-@media (max-width: 479px) { .arc__pin { height: 320vh; } }
+@media (max-width: 479px) { .arc__pin { height: 240vh; } }
 @media (prefers-reduced-motion: reduce) {
   .arc__pin { height: auto; }
+  .steps { margin-top: 0; height: auto; }
+  .steps__stick { position: static; height: auto; }
   .arc__stage { display: none; }
   .arc .sr-only { position: static; width: auto; height: auto; margin: 0; clip: auto; white-space: normal; font-weight: 500; font-size: clamp(36px, 6vw, 88px); line-height: 1; letter-spacing: -.02em; text-align: center; padding: 140px 16px 0; }
   .steps__wrap { transition: none !important; }
@@ -1024,9 +1046,9 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
 </script>
 <div class="ldr" id="ldr" aria-hidden="true">
   <div class="ldr__img" id="ldr-img">
-    <img class="x x1" src="assets/hero-lynkon-poster.jpg" alt="" decoding="sync">
-    <img class="x x2" src="assets/hero-travel-poster.jpg" alt="" decoding="sync">
-    <img class="x x3" src="assets/hero-ecommerce-poster.jpg" alt="" decoding="sync">
+    <img class="x x1" src="assets/hero-wind-poster.jpg" alt="" decoding="sync">
+    <img class="x x2" src="assets/hero-mynt-poster.jpg" alt="" decoding="sync">
+    <img class="x x3" src="assets/hero-marketing-poster.jpg" alt="" decoding="sync">
     <img class="cover" src="assets/hero-bg-portrait.jpg" alt="" decoding="sync" fetchpriority="high">
   </div>
   <div class="ldr__h1">
@@ -1054,8 +1076,8 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
   <div class="nav__panel" id="nav-panel" role="dialog" aria-label="Site menu" data-lenis-prevent>
     <div class="mp-grab mp-anim" aria-hidden="true" style="--k:0"></div>
     <div class="mp-grid">
-      <a class="mp-tile mp-anim" href="#projects" data-spy="projects" style="--k:1"><span class="mp-num">01</span><img class="mp-peek" src="assets/thumb-cashpilot.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Projects</b><small>Selected work</small></a>
-      <a class="mp-tile mp-anim" href="#about" data-spy="about" style="--k:2"><span class="mp-num">02</span><img class="mp-peek" src="assets/portrait.jpg" alt="" loading="lazy" style="object-position:50% 25%"><span class="mp-fade"></span><b>About</b><small>Who I am</small></a>
+      <a class="mp-tile mp-anim" href="#projects" data-spy="projects" style="--k:1"><span class="mp-in"><span class="mp-num">01</span><b>Projects</b><small>Selected work</small></span></a>
+      <a class="mp-tile mp-anim" href="#about" data-spy="about" style="--k:2"><span class="mp-in"><span class="mp-num">02</span><b>About</b><small>Who I am</small></span></a>
       <div class="mp-tile mp-reel mp-wide mp-anim is-playing" id="mp-reel" style="--k:3">
         <img class="is-on" src="assets/thumb-dentrak.jpg" alt="" loading="lazy">
         <img src="assets/thumb-cashpilot.jpg" alt="" loading="lazy">
@@ -1076,7 +1098,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
         </button>
       </div>
       <div class="mp-row" id="mp-row" role="group" aria-label="More sections, scroll sideways">
-      <a class="mp-tile mp-anim" href="#skillset" data-spy="skillset" style="--k:5"><span class="mp-num">03</span><img class="mp-peek" src="assets/thumb-superai.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Skillset</b><small>What I do</small></a>
+      <a class="mp-tile mp-anim" href="#skillset" data-spy="skillset" style="--k:5"><span class="mp-in"><span class="mp-num">03</span><b>Skillset</b><small>What I do</small></span></a>
       <div class="mp-tile mp-clock mp-anim" style="--k:6" role="img" aria-label="Local time in Dhaka" id="mp-clock">
         <span class="mp-clock__ring" aria-hidden="true"></span>
         <span class="mp-clock__hand h" id="mp-h" aria-hidden="true"><i></i></span>
@@ -1084,7 +1106,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
         <span class="mp-clock__hand s" id="mp-s" aria-hidden="true"><i></i></span>
         <span><b>Dhaka</b><small id="mp-time">--:--</small></span>
       </div>
-      <a class="mp-tile mp-anim" href="#process" data-spy="process" style="--k:7"><span class="mp-num">04</span><img class="mp-peek" src="assets/thumb-parenting.jpg" alt="" loading="lazy"><span class="mp-fade"></span><b>Process</b><small>How I work</small></a>
+      <a class="mp-tile mp-anim" href="#process" data-spy="process" style="--k:7"><span class="mp-in"><span class="mp-num">04</span><b>Process</b><small>How I work</small></span></a>
       </div>
     </div>
     <div class="mp-foot mp-anim" style="--k:8">
@@ -1106,10 +1128,10 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       <h1 class="hero__name" aria-label="Shanto Hasan">
         <span class="hero__word hero__word--first" id="name-first" aria-hidden="true"><span class="hc" style="--i:0">S</span><span class="hc" style="--i:1">h</span><span class="hc" style="--i:2">a</span><span class="hc" style="--i:3">n</span><span class="hc" style="--i:4">t</span><span class="hc" style="--i:5">o</span></span>
         <span class="hero__frame" id="name-frame">
-          <video class="is-on hero__vid" src="assets/hero-lynkon.mp4" poster="assets/hero-lynkon-poster.jpg" muted loop playsinline preload="auto" disablepictureinpicture aria-label="Lynkon creator platform branding (silent video)"></video>
-          <video class="hero__vid" src="assets/hero-ecommerce.mp4" poster="assets/hero-ecommerce-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="E-commerce mobile app design (silent video)" style="object-position: 50% 30%"></video>
-          <video class="hero__vid" src="assets/hero-devtools.mp4" poster="assets/hero-devtools-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="AI assistant code editor design (silent video)" style="object-position: 50% 45%"></video>
-          <video class="hero__vid" src="assets/hero-travel.mp4" poster="assets/hero-travel-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="Travel booking website design (silent video)" style="object-position: 50% 35%"></video>
+          <video class="is-on hero__vid" src="assets/hero-wind.mp4" poster="assets/hero-wind-poster.jpg" muted loop playsinline preload="auto" disablepictureinpicture aria-label="Wind energy monitoring dashboard design (silent video)" style="object-position: 50% 45%"></video>
+          <video class="hero__vid" src="assets/hero-data.mp4" poster="assets/hero-data-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="Data and weather mobile app screens (silent video)" style="object-position: 50% 40%"></video>
+          <video class="hero__vid" src="assets/hero-mynt.mp4" poster="assets/hero-mynt-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="Mynt collectors marketplace website design (silent video)" style="object-position: 50% 30%"></video>
+          <video class="hero__vid" src="assets/hero-marketing.mp4" poster="assets/hero-marketing-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="B2B marketing dashboard design (silent video)" style="object-position: 50% 50%"></video>
         </span>
         <span class="hero__word hero__word--last" id="name-last" aria-hidden="true"><span class="hc" style="--i:6">H</span><span class="hc" style="--i:7">a</span><span class="hc" style="--i:8">s</span><span class="hc" style="--i:9">a</span><span class="hc" style="--i:10">n</span></span>
       </h1>
@@ -1191,7 +1213,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       </ul>
     </div>
     <div class="skill-float" id="skill-float" aria-hidden="true">
-      <video class="is-on" src="assets/skill-branding.mp4" poster="assets/skill-branding-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
+      <video class="is-on" src="assets/skill-product.mp4" poster="assets/skill-product-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
       <video src="assets/skill-frontend.mp4" poster="assets/skill-frontend-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
       <video src="assets/skill-designsystem.mp4" poster="assets/skill-designsystem-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
       <video src="assets/skill-motion.mp4" poster="assets/skill-motion-poster.jpg" muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1"></video>
@@ -1211,7 +1233,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
     </div>
   </section>
   <section class="steps" id="steps" aria-label="Process steps">
-    <div class="steps__container">
+    <div class="steps__stick"><div class="steps__container">
       <div class="steps__wrap">
         <article class="step"><div class="step__content">
           <div><p class="step__label">Step 01</p><h3 class="step__title">Discover</h3><p class="step__copy">We start with a conversation. I dig into your product, your users and your goals, so we're clear on what to build and why it matters.</p></div>
@@ -1230,7 +1252,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
           <ul class="step__list"><li>React &amp; TypeScript</li><li>Motion &amp; interaction</li><li>QA &amp; accessibility</li><li>Launch</li><li>Post-launch support</li></ul>
         </div></article>
       </div>
-    </div>
+    </div></div>
   </section>
 </main>
 
@@ -1342,10 +1364,10 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
 (function () {
   var ARROW = '<svg class="dots" viewBox="0 0 100 100" fill="none" aria-hidden="true"><g transform="translate(-18.375 6.125)"><rect style="--i:5" x="51" y="14.25" width="10.25" height="10.25" rx="5.125"/><rect style="--i:7" x="63.25" y="26.5" width="10.25" height="10.25" rx="5.125"/><rect style="--i:9" x="75.5" y="38.75" width="10.25" height="10.25" rx="5.125"/><rect style="--i:9" x="63.25" y="51" width="10.25" height="10.25" rx="5.125"/><rect style="--i:9" x="51" y="63.25" width="10.25" height="10.25" rx="5.125"/></g></svg>';
   var projects = [
-    { title: 'Jordan Kuwait Bank', img: 'assets/project-jkb.jpg', meta: [['Type','Full Ecosystem'],['Timeline','Ongoing'],['Year','2026']] },
-    { title: 'Daman Insurance', img: 'assets/project-daman.jpg', pos: '50% 8%', meta: [['Type','Mobile App, Website & SaaS Product'],['Timeline','Ongoing'],['Year','2026']] },
-    { title: 'Tamasho', img: 'assets/project-tamasho.jpg', pos: '0% 50%', meta: [['Type','Mobile App, Website & SaaS Product'],['Timeline','4 Months'],['Year','2026']] },
-    { title: '8x8', img: 'assets/project-8x8.jpg', pos: '0% 50%', fill: '#05878a', meta: [['Type','Website Design'],['Timeline','2 Months'],['Year','2025']] }
+    { title: 'Globaltize', url: 'https://globaltize.com/', img: 'assets/project-globaltize.jpg', meta: [['Type','Full Ecosystem'],['Timeline','Ongoing'],['Year','2026']] },
+    { title: 'FundedElite', url: 'https://fundedelite.com/', img: 'assets/project-fundedelite.jpg', meta: [['Type','Mobile App, Website & SaaS Product'],['Timeline','Ongoing'],['Year','2026']] },
+    { title: 'Tamasho', url: 'https://tamashotechnologies.com/', img: 'assets/project-tamasho.jpg', pos: '0% 50%', meta: [['Type','Mobile App, Website & SaaS Product'],['Timeline','4 Months'],['Year','2026']] },
+    { title: '8x8', url: 'https://cpaas.8x8.com/en/', img: 'assets/project-8x8.jpg', pos: '0% 50%', fill: '#05878a', meta: [['Type','Website Design'],['Timeline','2 Months'],['Year','2025']] }
   ];
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
   function chars(s) {
@@ -1360,11 +1382,12 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
   }
   var list = document.getElementById('plist') || document.createElement('ul');
   list.innerHTML = projects.map(function (p, i) {
-    var media = p.img ? '<img src="' + p.img + '" alt="' + esc(p.title) + ' project cover" loading="lazy"' + (p.fill ? ' style="object-fit:contain;background:' + p.fill + '"' : (p.pos ? ' style="object-position:' + p.pos + '"' : '')) + '>' : '<div class="ph">Cover image</div>';
+    var media = p.img ? '<img src="' + p.img + '" alt="' + esc(p.title) + ' project cover" loading="lazy"' + (p.fill ? ' style="object-fit:contain;background:' + p.fill + '"' : (p.pos ? ' style="object-position:' + p.pos + '"' : '')) + '>' : '<div class="ph">Cover coming soon</div>';
     return '<li class="pitem' + (i === 0 ? ' is-active' : '') + '">' +
-      '<a class="pitem__link" href="#projects">' +
+      (p.url ? '<a class="pitem__link" href="' + p.url + '" target="_blank" rel="noopener" aria-label="' + esc(p.title) + ': visit the live site (opens in a new tab)">'
+             : '<a class="pitem__link" href="#projects">') +
         '<div class="pitem__grid">' +
-          '<div class="pitem__head"><h3 class="pitem__title">' + chars(p.title) + '</h3><span class="btn btn--dark">Jump To Project ' + ARROW + '</span></div>' +
+          '<div class="pitem__head"><h3 class="pitem__title">' + chars(p.title) + '</h3><span class="btn btn--dark">' + (p.url ? 'Visit live site' : 'View project') + ' ' + ARROW + '</span></div>' +
           '<div class="pitem__media">' + media + '</div>' +
         '</div>' +
         '<dl class="pitem__meta">' + p.meta.map(function (m) { return '<div><dt>' + m[0] + '</dt><dd>' + chars(m[1]) + '</dd></div>'; }).join('') + '</dl>' +
@@ -2097,7 +2120,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
     function build() {
       var L = path.getTotalLength();
       var vs = 700 / L * 100, ve = (700 + 1516) / L * 100, tw = textWidth() / L * 100;
-      startP = ve + 8; endP = vs - tw - 40;
+      startP = ve + 2; endP = vs - tw - 3;   // enter just off the right edge, finish the moment the last letter leaves on the left (no empty stretch)
       render();
     }
     function render() {
@@ -2113,7 +2136,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
   })();
 
   // Process cards (nbnzia mwg043): a fan around a far-below pivot that swings in with an elastic
-  // ease once the section top passes 20% of the viewport; momentum push on hover; fade-up on phones.
+  // ease as soon as the section is 20% into the viewport (right after the headline leaves); momentum push on hover; fade-up on phones.
   (function () {
     var root = document.getElementById('steps');
     if (!root) return;
@@ -2146,7 +2169,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
     function check() {
       if (!desk.matches) return;
       var top = root.getBoundingClientRect().top, vh = window.innerHeight;
-      if (state === 'idle' && top <= vh * .2) { state = 'playing'; t0 = performance.now(); raf = requestAnimationFrame(revealFrame); }
+      if (state === 'idle' && top <= vh * .8) { state = 'playing'; t0 = performance.now(); raf = requestAnimationFrame(revealFrame); }
       else if (state !== 'idle' && top > vh) resetReveal();
     }
 
@@ -2206,6 +2229,7 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
       });
     });
   })();
+
 
 
   // Intro loader (nbnzia "willem" timeline, expo.inOut): letters rise -> box opens with flashing
