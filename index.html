@@ -1023,6 +1023,8 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 }
 @media (max-width: 767px) { .ldr__h1 { font-size: 5.5em; } }
 @media (max-width: 720px) { .ldr__img .cover { top: -13%; height: 113%; object-position: 50% 0; } }
+/* tall screens: the box sits mid-screen, so enlarge the 16:9 photos and lift them until the face lands in the box */
+@media (orientation: portrait) { .ldr__img .x { top: -4%; height: 150%; } }
 @media (max-width: 479px) { .ldr__h1 { font-size: 4rem; } }
 /* hero content rises in while the photo is still growing (nbnzia: letters + nav slide up, expo.out 1.25s) */
 .ldr { display: none; }
@@ -1054,9 +1056,9 @@ html.is-revealing .hero__scroll { transition: opacity .8s ease .6s, translate 1s
 </script>
 <div class="ldr" id="ldr" aria-hidden="true">
   <div class="ldr__img" id="ldr-img">
-    <img class="x x1" src="assets/loader-1.jpg" style="object-position:50% 22%" alt="" decoding="sync">
-    <img class="x x2" src="assets/loader-2.jpg" style="object-position:50% 18%" alt="" decoding="sync">
-    <img class="x x3" src="assets/loader-3.jpg" style="object-position:50% 20%" alt="" decoding="sync">
+    <img class="x x1" src="assets/loader-1.jpg" style="object-position:50% 35%" alt="" decoding="sync">
+    <img class="x x2" src="assets/loader-2.jpg" style="object-position:50% 35%" alt="" decoding="sync">
+    <img class="x x3" src="assets/loader-3.jpg" style="object-position:50% 35%" alt="" decoding="sync">
     <img class="cover" src="assets/hero-bg-portrait.jpg" alt="" decoding="sync" fetchpriority="high">
   </div>
   <div class="ldr__h1">
